@@ -8,7 +8,9 @@ router.get("/", async (req, res) => {
   // find all products
   // be sure to include its associated Category and Tag data
   try {
-    const allProducts = await Product.findAll();
+    const allProducts = await Product.findAll({
+      include: [{ all: true, nested: true }],
+    });
     res.status(200).json(allProducts);
   } catch (err) {
     res.status(500).json(err);
@@ -21,8 +23,7 @@ router.get("/:id", async (req, res) => {
   // be sure to include its associated Category and Tag data
   try {
     const singleProduct = await Product.findByPk(req.params.id, {
-      // JOIN with locations, using the Trip through table
-      include: [{ model: Location, through: Trip, as: "planned_trips" }],
+      include: [{ all: true, nested: true }],
     });
 
     if (!singleProduct) {
@@ -40,10 +41,10 @@ router.get("/:id", async (req, res) => {
 router.post("/", (req, res) => {
   /* req.body should look like this...
     {
-      product_name: "Basketball",
-      price: 200.00,
-      stock: 3,
-      tagIds: [1, 2, 3, 4]
+      "product_name": "Basketball",
+      "price": 200.00,
+      "stock": 3,
+      "tagIds": [1, 2, 3, 4]
     }
   */
   Product.create(req.body)
@@ -105,7 +106,7 @@ router.put("/:id", (req, res) => {
     })
     .then((updatedProductTags) => res.json(updatedProductTags))
     .catch((err) => {
-      // console.log(err);
+      console.log(err);
       res.status(400).json(err);
     });
 });
